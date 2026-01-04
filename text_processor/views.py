@@ -65,46 +65,43 @@ def download_pdf(request, pk):
     p = canvas.Canvas(buffer, pagesize=A4)
 
     x, y = 40, 800
-    line_height = 16
+    line_height = 18
     max_width = 500
 
-    # Built-in fonts: no TTF needed
     normal_font = 'Helvetica'
     bold_font = 'Helvetica-Bold'
     font_size = 12
 
-    # Helper to write a chunk of text
-    def write_chunk(text, bold):
+    # Helper to write a chunk of text (whole node at once)
+    def write_text(text, bold):
         nonlocal x, y
-        words = text.split(' ')
-        for word in words:
-            if not word.strip():
-                x += p.stringWidth(' ', normal_font, font_size)
-                continue
-            font_name = bold_font if bold else normal_font
-            p.setFont(font_name, font_size)
-            word_width = p.stringWidth(word + ' ', font_name, font_size)
-            if x + word_width > max_width:
-                x = 40
-                y -= line_height
-                if y < 40:
-                    p.showPage()
-                    x, y = 40, 800
-            p.drawString(x, y, word + ' ')
-            x += word_width
+        font_name = bold_font if bold else normal_font
+        p.setFont(font_name, font_size)
+        if not text.strip():
+            return
+        # Wrap text if needed
+        text_width = p.stringWidth(text, font_name, font_size)
+        if x + text_width > max_width:
+            x = 40
+            y -= line_height
+            if y < 40:
+                p.showPage()
+                x, y = 40, 800
+        p.drawString(x, y, text)
+        x += text_width
 
-    # Iterate over elements
-    for elem in soup.descendants:
+    # Iterate over top-level elements only
+    for elem in soup.contents:
         if elem.name == 'strong':
-            write_chunk(elem.get_text(), bold=True)
-        elif elem.string and elem.string.strip():
-            write_chunk(elem.string, bold=False)
+            write_text(elem.get_text(), bold=True)
         elif elem.name == 'br':
             x = 40
             y -= line_height
             if y < 40:
                 p.showPage()
                 x, y = 40, 800
+        elif elem.string:
+            write_text(elem.string, bold=False)
 
     p.showPage()
     p.save()
