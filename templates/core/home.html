@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Bionic Text Reader</h1>
+
+{% if user.is_authenticated %}
+    <a href="/text/">Start Reading</a>
+{% else %}
+    <p>Please log in or sign up.</p>
+{% endif %}
+{% endblock %}

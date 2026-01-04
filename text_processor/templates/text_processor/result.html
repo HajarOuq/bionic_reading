@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Bionic Text</h2>
+<div>
+    {{ entry.bionic_text|safe }}
+</div>
+
+<br>
+
+<a href="{% url 'download_pdf' entry.id %}">Download PDF</a>
+{% endblock %}

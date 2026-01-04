@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Your History</h2>
+
+{% if entries %}
+    <ul>
+        {% for entry in entries %}
+        <li>
+            <a href="{% url 'view_entry' entry.id %}">
+                {{ entry.created_at|date:"Y-m-d H:i" }}
+            </a> - 
+            <a href="{% url 'download_pdf' entry.id %}">PDF</a>| 
+            <a href="{% url 'delete_entry' entry.id %}" onclick="return confirm('Are you sure you want to delete this entry?');">Delete</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You have not processed any texts yet.</p>
+{% endif %}
+
+<a href="{% url 'process_text' %}">Process new text</a>
+{% endblock %}
